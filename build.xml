@@ -1,34 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="php-automate-build-ant" default="full-build">
-        
-		
-		<property file="build.properties"/>
-		
-		
+
     <!-- By default the tools are managed by Composer in ${basedir}/vendor/bin -->
-    <property name="pdepend" value="/web/www/com.github.com/DIVERGENTGIT/projectbuild/vendor/bin/pdepend"/>
-    <property name="phpcs" value="//web/www/com.github.com/DIVERGENTGIT/projectbuild/vendor/bin/phpcs"/>
-    <property name="phpdox" value="/web/www/com.github.com/DIVERGENTGIT/projectbuild/vendor/bin/phpdox"/>
-    <property name="phploc" value="/web/www/com.github.com/DIVERGENTGIT/projectbuild/vendor/bin/phploc"/>
-    <property name="phpmd" value="/web/www/com.github.com/DIVERGENTGIT/projectbuild/vendor/bin/phpmd"/>
-    <property name="phpunit" value="/web/www/com.github.com/DIVERGENTGIT/projectbuild/vendor/bin/phpunit"/>
-   
-
-
+    <property name="pdepend" value="${basedir}/vendor/bin/pdepend"/>
+    <property name="phpcs" value="${basedir}/vendor/bin/phpcs"/>
+    <property name="phpdox" value="${basedir}/vendor/bin/phpdox"/>
+    <property name="phploc" value="${basedir}/vendor/bin/phploc"/>
+    <property name="phpmd" value="${basedir}/vendor/bin/phpmd"/>
+    <property name="phpunit" value="${basedir}/vendor/bin/phpunit"/>
 
     <target name="clean" unless="clean.done" description="Cleanup build artifacts.">
-        <delete dir="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/api"/>
-        <delete dir="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/coverage"/>
-        <delete dir="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/logs"/>
-        <delete dir="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/pdepend"/>
-        <delete dir="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/phpdox"/>
+        <delete dir="${basedir}/build/api"/>
+        <delete dir="${basedir}/build/coverage"/>
+        <delete dir="${basedir}/build/logs"/>
+        <delete dir="${basedir}/build/pdepend"/>
+        <delete dir="${basedir}/build/phpdox"/>
         <property name="clean.done" value="true"/>
     </target>
 
     <target name="composer" description="Install composer packages including require-dev.">
         <get src="https://getcomposer.org/download/1.2.1/composer.phar" dest="composer.phar"/>
         <exec executable="php" failonerror="true">
-            <arg value="/web/www/com.github.com/DIVERGENTGIT/projectbuild/composer.phar"/>
+            <arg value="${basedir}/composer.phar"/>
             <arg value="install"/>
             <arg value="--prefer-dist"/>
             <arg value="--no-progress"/>
@@ -43,7 +36,7 @@
     <target name="lint" unless="lint.done" description="Perform syntax check of PHP sourcecode files.">
         <apply executable="php" failonerror="true" taskname="lint">
             <arg value="-l"/>
-            <fileset dir="/web/www/com.github.com/DIVERGENTGIT/projectbuild/src">
+            <fileset dir="${basedir}/src">
                 <include name="**/*.php"/>
                 <!-- modified/ -->
             </fileset>
@@ -54,10 +47,10 @@
     <target name="pdepend" unless="pdepend.done" depends="prepare"
             description="Calculate software metrics using PHP_Depend and log result in XML format. Intended for usage within a continuous integration environment.">
         <exec executable="${pdepend}" taskname="pdepend">
-            <arg value="--jdepend-xml=/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/logs/jdepend.xml"/>
-            <arg value="--jdepend-chart=/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/pdepend/dependencies.svg"/>
-            <arg value="--overview-pyramid=/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/pdepend/overview-pyramid.svg"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/src"/>
+            <arg value="--jdepend-xml=${basedir}/build/logs/jdepend.xml"/>
+            <arg value="--jdepend-chart=${basedir}/build/pdepend/dependencies.svg"/>
+            <arg value="--overview-pyramid=${basedir}/build/pdepend/overview-pyramid.svg"/>
+            <arg path="${basedir}/src"/>
         </exec>
         <property name="pdepend.done" value="true"/>
     </target>
@@ -68,8 +61,8 @@
             <arg value="--standard=PSR2"/>
             <arg value="--extensions=php"/>
             <arg value="--ignore=autoload.php"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/src"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/tests"/>
+            <arg path="${basedir}/src"/>
+            <arg path="${basedir}/tests"/>
         </exec>
         <property name="phpcs.done" value="true"/>
     </target>
@@ -82,8 +75,8 @@
             <arg value="--standard=PSR2"/>
             <arg value="--extensions=php"/>
             <arg value="--ignore=autoload.php"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/src"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/tests"/>
+            <arg path="${basedir}/src"/>
+            <arg path="${basedir}/tests"/>
         </exec>
         <property name="phpcs.done" value="true"/>
     </target>
@@ -98,8 +91,8 @@
             description="Measure project size using PHPLOC and print human readable output. Intended for usage on the command line.">
         <exec executable="${phploc}" taskname="phploc">
             <arg value="--count-tests"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/src"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/tests"/>
+            <arg path="${basedir}/src"/>
+            <arg path="${basedir}/tests"/>
         </exec>
         <property name="phploc.done" value="true"/>
     </target>
@@ -109,11 +102,11 @@
         <exec executable="${phploc}" taskname="phploc">
             <arg value="--count-tests"/>
             <arg value="--log-csv"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/logs/phploc.csv"/>
+            <arg path="${basedir}/build/logs/phploc.csv"/>
             <arg value="--log-xml"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/logs/phploc.xml"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/src"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/tests"/>
+            <arg path="${basedir}/build/logs/phploc.xml"/>
+            <arg path="${basedir}/src"/>
+            <arg path="${basedir}/tests"/>
         </exec>
         <property name="phploc.done" value="true"/>
     </target>
@@ -121,9 +114,9 @@
     <target name="phpmd" unless="phpmd.done"
             description="Perform project mess detection using PHPMD and print human readable output. Intended for usage on the command line before committing.">
         <exec executable="${phpmd}" taskname="phpmd">
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/src"/>
+            <arg path="${basedir}/src"/>
             <arg value="text"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/phpmd.xml"/>
+            <arg path="${basedir}/build/phpmd.xml"/>
         </exec>
         <property name="phpmd.done" value="true"/>
     </target>
@@ -131,11 +124,11 @@
     <target name="phpmd-ci" unless="phpmd.done" depends="prepare"
             description="Perform project mess detection using PHPMD and log result in XML format. Intended for usage within a continuous integration environment.">
         <exec executable="${phpmd}" taskname="phpmd">
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/src"/>
+            <arg path="${basedir}/src"/>
             <arg value="xml"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/phpmd.xml"/>
+            <arg path="${basedir}/build/phpmd.xml"/>
             <arg value="--reportfile"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/logs/pmd.xml"/>
+            <arg path="${basedir}/build/logs/pmd.xml"/>
         </exec>
         <property name="phpmd.done" value="true"/>
     </target>
@@ -143,7 +136,7 @@
     <target name="phpunit" unless="phpunit.done" depends="prepare" description="Run unit tests with PHPUnit.">
         <exec executable="${phpunit}" resultproperty="result.phpunit" taskname="phpunit">
             <arg value="--configuration"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/phpunit.xml"/>
+            <arg path="${basedir}/build/phpunit.xml"/>
             <arg path="tests"/>
         </exec>
         <property name="phpunit.done" value="true"/>
@@ -153,7 +146,7 @@
             description="Run unit tests with PHPUnit without generating code coverage reports.">
         <exec executable="${phpunit}" failonerror="true" taskname="phpunit">
             <arg value="--configuration"/>
-            <arg path="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/phpunit.xml"/>
+            <arg path="${basedir}/build/phpunit.xml"/>
             <arg path="tests"/>
             <arg value="--no-coverage"/>
         </exec>
@@ -161,11 +154,11 @@
     </target>
 
     <target name="prepare" unless="prepare.done" depends="clean" description="Prepare for build.">
-        <mkdir dir="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/api"/>
-        <mkdir dir="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/coverage"/>
-        <mkdir dir="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/logs"/>
-        <mkdir dir="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/pdepend"/>
-        <mkdir dir="/web/www/com.github.com/DIVERGENTGIT/projectbuild/build/phpdox"/>
+        <mkdir dir="${basedir}/build/api"/>
+        <mkdir dir="${basedir}/build/coverage"/>
+        <mkdir dir="${basedir}/build/logs"/>
+        <mkdir dir="${basedir}/build/pdepend"/>
+        <mkdir dir="${basedir}/build/phpdox"/>
         <property name="prepare.done" value="true"/>
     </target>
 
